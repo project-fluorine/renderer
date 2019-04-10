@@ -1,0 +1,24 @@
+.player {
+    border: 3px solid lightgray;
+    border-radius: 5px;
+    display: inline-block;
+    margin: 5px;
+    padding: 3px;
+    color: white;
+}
+.head {
+  font-size: 200%;
+  padding: 5px;
+}
+
+.t {
+  font-size: 50%;
+  color: gray;
+}
+#fluorine {
+  border: 1px solid black;
+}
+
+body {
+  background-color: #2f2f30;
+}
