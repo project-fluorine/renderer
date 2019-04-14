@@ -14,7 +14,15 @@ var ctx, f
 const width = 800
 const height = 450
 
-
+class Costume {
+  constructor(b64) {
+    var image = new Image();
+    image.src = b64
+    this.image = image
+    this.width = image.width
+    this.height = image.height
+  }
+}
 class Sprite {
   constructor(x, y, costume, costumes) {
     this.position = {
@@ -25,22 +33,24 @@ class Sprite {
     this.rotation = 0;
     this.costumes = []
     costumes.forEach((base) => {
-      var image = new Image();
-      image.src = base
-      this.costumes.push(image);
+      this.costumes.push(new Costume(base));
     });
     this.costume = costume
     this.scale = 1
   }
 
   setPos(x,y) {
+    if (x+(width/2) <= width && x+(width/2) >= 0 && y+(height/2) <= height && y+(height/2) >= 0) {
     this.position.x = x;
     this.position.y = y;
+    change = true;
+  }
   }
   move(x,y) {
     if (this.position.x+x+(width/2) <= width && this.position.x+x+(width/2) >= 0 && this.position.y+y+(height/2) <= height && this.position.y+y+(height/2) >= 0) {
     this.position.x = this.position.x+x;
     this.position.y = this.position.y+y;
+    change = true;
   }
   }
 }
@@ -82,19 +92,26 @@ function drawCostume(x,y,base, rotation, scale) {
 
 var re;
 var change = true;
-
+var frametime = 0;
 function makeFrame() {
-  if (game.running && change == true) {   // change will be implemented soon
-    ctx.beginPath();
-    ctx.rect(0,0,width, height);
-    ctx.fill();
-    c++;
-    for (key in game.sprites) {
-      if (game.sprites[key].hidden == false) {
-        drawCostume(game.sprites[key].position.x+(width/2),game.sprites[key].position.y+(height/2), game.sprites[key].costumes[game.sprites[key].costume], game.sprites[key].rotation, game.sprites[key].scale);
+  if (game.running) {
+    if (change == true) {
+      ctx.beginPath();
+      ctx.rect(0,0,width, height);
+      ctx.fill();
+      for (key in game.sprites) {
+        if (game.sprites[key].hidden == false) {
+          x = game.sprites[key].position.x+(width/2)-(game.sprites[key].costumes[game.sprites[key].costume].width/2)
+          y = game.sprites[key].position.y+(height/2)-(game.sprites[key].costumes[game.sprites[key].costume].height/2)
+          drawCostume(x, y, game.sprites[key].costumes[game.sprites[key].costume].image, game.sprites[key].rotation, game.sprites[key].scale);
+        }
       }
     }
+    window.requestAnimationFrame(makeFrame)
   }
+  c++;
+  change = false;
+  frametime = new Date()/1
 }
 
 function init() {
@@ -103,17 +120,16 @@ function init() {
   ctx.canvas.width = width
   ctx.canvas.height = height
   game.running = true;
-  makeFrame();
+  makeFrame()
   game.running = false;
-  re = setInterval(() => {    // this is probably temporary
-    makeFrame()
-  });
+
 }
 
 function flag() { // run
-  game.running = true;
-  game.run()
   init()
+  game.running = true;
+  window.requestAnimationFrame(makeFrame)
+  game.run()
 }
 
 function stop() {
@@ -121,8 +137,16 @@ function stop() {
   clearInterval(re);
 }
 
-function sync() {
-    // planned to be implemented very soon
+function framesync() { // I dont believe this works
+  lf = frametime
+  const poll = resolve => {
+    if (lf != frametime) {
+      resolve();
+    } else {
+      setTimeout(_ => poll(resolve), 5);
+    }
+  }
+  return new Promise(poll);
 }
 
 
@@ -145,23 +169,18 @@ function sync() {
 
 
 
-game.initer = () =>{  // this is ran when the program starts
-  setInterval(()=> {
-    game.sprites["a"].move(-1,0);
-  },10);
-
-
-  setInterval(()=> {
-    game.sprites["d"].move(0,-1);
-  },10);
+game.initer = async () =>{  // this is ran when the program starts
+    game.sprites["a"].setPos(Math.floor(Math.random() * 800)-400,0);
+    await framesync()
+    window.setTimeout(game.initer, 0)
 }
 
 // x, y, costume, costume data
 
 game.sprites["a"] = new Sprite(-100,-100,0,["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAADrklEQVR4nO3cW0gUYRjG8dfzulpba+bimksp0cGICIVuCo0wKghJIhDtCJWFEEGZBHXTAYIuIuuibgK9iSjCMiwppCBS6KJapEjClDQ1bd3VtMTi2xDKnRV3HNdn6vndCDPs7Cd/Zr45acScQu9PIRiRTIGFQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAIm2oyDdmy/K1FWr9jXnQhYN9hSJAPv1si3D5niaVo+I+ObCtP8SVu0bVBSCm5rRgjmR1+OdNUcl94nOeEerm6mCGLLdkvanv0SaWnV9Xnfm0PSdr1MRjxWw8dmNPg5JHnzY0kv3ag7hpKYVSmLjh3x72XooIOoGI7CnYZsKy611h8FHeyknri0dcIYvQ3nxOdeFTBxqwl/9spaf4Dx1DK1vvPm1ukevm6wc0jGyXKxZlQHLB8dcknrpWrxNbsm/Hx66VWxZZ/V/Pzb8oew8wnkIUtN4loxlMnEUD5eOSjDnzYFLFdz0bz8R4aMczpABrGvrdFc7mmqmFSMMT31ezWXq0MaKsgg1sx7mst9zatD2k7/yyzN5TF2t65xhQPcpK4m82CnuM6SbeIsmfp3qO1b0rplqD156hszGNweEuv4DDCKmQMXJMrqC8v3jHgTwvI9ofov7/aqU1+e9gIZfL8Fdmxwk/r3rpSg617vbgvrWGYC3B4y3DE/6Dp1BvavgwuiTkXVMV6LPRf3gs4okHPI1xcHNJere1Oh7iXOXVWmuO0+BjLIl/r8oOtcZUX+e12TsfDoef8TRuR7V+NFWZZVnMYakshIf4JYnPFicT4NWBcR7RFbdpXMWtElcY4B8bmX/LVe7UH2vAZxHd4ncam/Q8QvcEvfsx0yOhwTtt9BL9jb7+owk3mqWGLmNhqyvc5bN6T7fp4h25pOsNch6sKt/drFoBN8qJLWV4Zz+LpBXxiqW+0tZ+5oPtcIlfdVQbiHr4tpXgNSj16Tci+E/LKDek+rp67YNO9ome5fjdtzGyU2uUMSFj8P+lSx+8Fl/8+eug2mePXnT/zf72D4bi8YBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAyCRER+ATxj2Zi1mjL+AAAAAElFTkSuQmCC"])
-
+/*
 game.sprites["d"] = new Sprite(100,100,0,["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAADrklEQVR4nO3cW0gUYRjG8dfzulpba+bimksp0cGICIVuCo0wKghJIhDtCJWFEEGZBHXTAYIuIuuibgK9iSjCMiwppCBS6KJapEjClDQ1bd3VtMTi2xDKnRV3HNdn6vndCDPs7Cd/Zr45acScQu9PIRiRTIGFQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAIm2oyDdmy/K1FWr9jXnQhYN9hSJAPv1si3D5niaVo+I+ObCtP8SVu0bVBSCm5rRgjmR1+OdNUcl94nOeEerm6mCGLLdkvanv0SaWnV9Xnfm0PSdr1MRjxWw8dmNPg5JHnzY0kv3ag7hpKYVSmLjh3x72XooIOoGI7CnYZsKy611h8FHeyknri0dcIYvQ3nxOdeFTBxqwl/9spaf4Dx1DK1vvPm1ukevm6wc0jGyXKxZlQHLB8dcknrpWrxNbsm/Hx66VWxZZ/V/Pzb8oew8wnkIUtN4loxlMnEUD5eOSjDnzYFLFdz0bz8R4aMczpABrGvrdFc7mmqmFSMMT31ezWXq0MaKsgg1sx7mst9zatD2k7/yyzN5TF2t65xhQPcpK4m82CnuM6SbeIsmfp3qO1b0rplqD156hszGNweEuv4DDCKmQMXJMrqC8v3jHgTwvI9ofov7/aqU1+e9gIZfL8Fdmxwk/r3rpSg617vbgvrWGYC3B4y3DE/6Dp1BvavgwuiTkXVMV6LPRf3gs4okHPI1xcHNJere1Oh7iXOXVWmuO0+BjLIl/r8oOtcZUX+e12TsfDoef8TRuR7V+NFWZZVnMYakshIf4JYnPFicT4NWBcR7RFbdpXMWtElcY4B8bmX/LVe7UH2vAZxHd4ncam/Q8QvcEvfsx0yOhwTtt9BL9jb7+owk3mqWGLmNhqyvc5bN6T7fp4h25pOsNch6sKt/drFoBN8qJLWV4Zz+LpBXxiqW+0tZ+5oPtcIlfdVQbiHr4tpXgNSj16Tci+E/LKDek+rp67YNO9ome5fjdtzGyU2uUMSFj8P+lSx+8Fl/8+eug2mePXnT/zf72D4bi8YBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAyCRER+ATxj2Zi1mjL+AAAAAElFTkSuQmCC"])
-
+*/
 /* end test code */
 
 
