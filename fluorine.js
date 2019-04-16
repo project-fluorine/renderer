@@ -124,6 +124,34 @@ class Program { // this controls everything
   }
 }
 
+class Controls {
+  constructor(ini, loop){
+    this.run = true;
+    this.active = false;
+    
+    this.flag = () => { 
+      if (run == true) {
+        eval(ini);
+        this.i = setInterval(function() {
+          if (this.active){
+            eval(loop);
+          }
+        }, 1);
+        this.run = false;
+        this.active=true;
+      }
+    }
+    this.stop = () => {
+        this.run = true;
+        clearInterval(this.i);
+      
+    }
+    this.pause = () => {
+      this.active = !this.active;
+    }
+  }  
+}
+
 
 // the fps counting system is for testing, might not stay in the future
 fps = 0;
@@ -152,7 +180,7 @@ var game = new Program(document.getElementById("fluorine"), 800, 450);
 game.sprites["a"] = new Sprite(0,0,0,game,["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAADrklEQVR4nO3cW0gUYRjG8dfzulpba+bimksp0cGICIVuCo0wKghJIhDtCJWFEEGZBHXTAYIuIuuibgK9iSjCMiwppCBS6KJapEjClDQ1bd3VtMTi2xDKnRV3HNdn6vndCDPs7Cd/Zr45acScQu9PIRiRTIGFQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAIm2oyDdmy/K1FWr9jXnQhYN9hSJAPv1si3D5niaVo+I+ObCtP8SVu0bVBSCm5rRgjmR1+OdNUcl94nOeEerm6mCGLLdkvanv0SaWnV9Xnfm0PSdr1MRjxWw8dmNPg5JHnzY0kv3ag7hpKYVSmLjh3x72XooIOoGI7CnYZsKy611h8FHeyknri0dcIYvQ3nxOdeFTBxqwl/9spaf4Dx1DK1vvPm1ukevm6wc0jGyXKxZlQHLB8dcknrpWrxNbsm/Hx66VWxZZ/V/Pzb8oew8wnkIUtN4loxlMnEUD5eOSjDnzYFLFdz0bz8R4aMczpABrGvrdFc7mmqmFSMMT31ezWXq0MaKsgg1sx7mst9zatD2k7/yyzN5TF2t65xhQPcpK4m82CnuM6SbeIsmfp3qO1b0rplqD156hszGNweEuv4DDCKmQMXJMrqC8v3jHgTwvI9ofov7/aqU1+e9gIZfL8Fdmxwk/r3rpSg617vbgvrWGYC3B4y3DE/6Dp1BvavgwuiTkXVMV6LPRf3gs4okHPI1xcHNJere1Oh7iXOXVWmuO0+BjLIl/r8oOtcZUX+e12TsfDoef8TRuR7V+NFWZZVnMYakshIf4JYnPFicT4NWBcR7RFbdpXMWtElcY4B8bmX/LVe7UH2vAZxHd4ncam/Q8QvcEvfsx0yOhwTtt9BL9jb7+owk3mqWGLmNhqyvc5bN6T7fp4h25pOsNch6sKt/drFoBN8qJLWV4Zz+LpBXxiqW+0tZ+5oPtcIlfdVQbiHr4tpXgNSj16Tci+E/LKDek+rp67YNO9ome5fjdtzGyU2uUMSFj8P+lSx+8Fl/8+eug2mePXnT/zf72D4bi8YBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAyCRER+ATxj2Zi1mjL+AAAAAElFTkSuQmCC"])
 
 game.sprites["d"] = new Sprite(100,100,0,game,["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAADrklEQVR4nO3cW0gUYRjG8dfzulpba+bimksp0cGICIVuCo0wKghJIhDtCJWFEEGZBHXTAYIuIuuibgK9iSjCMiwppCBS6KJapEjClDQ1bd3VtMTi2xDKnRV3HNdn6vndCDPs7Cd/Zr45acScQu9PIRiRTIGFQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAKGQcAwCBgGAcMgYBgEDIOAYRAwDAIm2oyDdmy/K1FWr9jXnQhYN9hSJAPv1si3D5niaVo+I+ObCtP8SVu0bVBSCm5rRgjmR1+OdNUcl94nOeEerm6mCGLLdkvanv0SaWnV9Xnfm0PSdr1MRjxWw8dmNPg5JHnzY0kv3ag7hpKYVSmLjh3x72XooIOoGI7CnYZsKy611h8FHeyknri0dcIYvQ3nxOdeFTBxqwl/9spaf4Dx1DK1vvPm1ukevm6wc0jGyXKxZlQHLB8dcknrpWrxNbsm/Hx66VWxZZ/V/Pzb8oew8wnkIUtN4loxlMnEUD5eOSjDnzYFLFdz0bz8R4aMczpABrGvrdFc7mmqmFSMMT31ezWXq0MaKsgg1sx7mst9zatD2k7/yyzN5TF2t65xhQPcpK4m82CnuM6SbeIsmfp3qO1b0rplqD156hszGNweEuv4DDCKmQMXJMrqC8v3jHgTwvI9ofov7/aqU1+e9gIZfL8Fdmxwk/r3rpSg617vbgvrWGYC3B4y3DE/6Dp1BvavgwuiTkXVMV6LPRf3gs4okHPI1xcHNJere1Oh7iXOXVWmuO0+BjLIl/r8oOtcZUX+e12TsfDoef8TRuR7V+NFWZZVnMYakshIf4JYnPFicT4NWBcR7RFbdpXMWtElcY4B8bmX/LVe7UH2vAZxHd4ncam/Q8QvcEvfsx0yOhwTtt9BL9jb7+owk3mqWGLmNhqyvc5bN6T7fp4h25pOsNch6sKt/drFoBN8qJLWV4Zz+LpBXxiqW+0tZ+5oPtcIlfdVQbiHr4tpXgNSj16Tci+E/LKDek+rp67YNO9ome5fjdtzGyU2uUMSFj8P+lSx+8Fl/8+eug2mePXnT/zf72D4bi8YBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAwChkHAMAgYBgHDIGAYBAyDgGEQMAyCRER+ATxj2Zi1mjL+AAAAAElFTkSuQmCC"])
-var i;
+/*var i;
 var run = true
 function flag() { // start
   if (run == true) {
@@ -166,7 +194,9 @@ function flag() { // start
 function stop() {
   run = true;
   clearInterval(i);
-}
+}*/
+var control = new Controls("", "game.sprites['d'].rotate(1);");
+
 
 /* end test code */
 
