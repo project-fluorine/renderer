@@ -45,7 +45,7 @@ class Sprite {
       "contents": null,
       "ending": null
     }
-  }
+depended on scratch 3’s renderer   }
 
   setPos(x,y) {
     this.position.x = x;
@@ -94,7 +94,7 @@ class Program { // this controls everything
     function drawCostume(x,y,base, rotation, scale) {  // rotation mostly works
      self.ctx.save();
      self.ctx.beginPath();
-     self.ctx.translate( x, y);
+     self.ctx.translate( x - base.width/2, y - base.height/2);
      self.ctx.rotate(rotation*Math.PI/180);
      self.ctx.drawImage(base, 0,0);
      self.ctx.restore();
