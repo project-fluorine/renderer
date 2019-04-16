@@ -12,6 +12,7 @@
 
 const width = 800
 const height = 450
+const fontheight = 30 // temporary
 
 class Costume {
   constructor(b64) {
@@ -39,6 +40,11 @@ class Sprite {
     this.costume = costume
     this.scale = 1
     this.program.change = true;
+    this.message = {
+      "available": false,
+      "contents": null,
+      "ending": null
+    }
   }
 
   setPos(x,y) {
@@ -54,6 +60,11 @@ class Sprite {
   rotate(degrees) {
     this.rotation += degrees;
     this.program.change = true;
+  }
+  say(message, milliseconds) {
+    this.message.contents = message
+    this.message.ending = (new Date/1) + milliseconds
+    this.message.available = true
   }
 }
 
@@ -92,6 +103,7 @@ class Program { // this controls everything
     var makeframe = () => {
 
       if (self.change == true) {
+        self.ctx.fillStyle = "black"
         self.ctx.beginPath();
         self.ctx.rect(0,0,self.width, self.height);
         self.ctx.fill();
@@ -100,8 +112,30 @@ class Program { // this controls everything
             var x = self.sprites[key].position.x+(self.width/2)
             var y = self.sprites[key].position.y+(self.height/2)
             drawCostume(x, y, self.sprites[key].costumes[self.sprites[key].costume].image, self.sprites[key].rotation, self.sprites[key].scale);
+
+            if (self.sprites[key].message.available == true) {
+              if (new Date/1 < self.sprites[key].message.ending) {
+              var msg = self.sprites[key].message.contents
+              self.ctx.font = fontheight + 'px Trebuchet MS';
+              self.ctx.fillStyle = "lightgray"
+              var size = self.ctx.measureText(msg).width;
+              self.ctx.beginPath();
+              self.ctx.moveTo(x-20, y-20);
+              self.ctx.lineTo(x-30, y-10);
+              self.ctx.lineTo(x, y);
+              self.ctx.fill();
+
+              self.ctx.fillRect(x-size-30, y-fontheight-30, size+10, fontheight+20);
+              self.ctx.fillStyle = "black"
+              self.ctx.fillText(msg, x-size-25, y-25);
+
+            } else {
+              self.sprites[key].message.available = false;
+            }
           }
         }
+      }
+
         self.change = false;
       }
       c++;
@@ -156,6 +190,7 @@ var i;
 var run = true
 function flag() { // start
   if (run == true) {
+    game.sprites['a'].say("Hello, World!",5000);
     i = setInterval(function() {
       game.sprites['d'].rotate(1);
     }, 1);
