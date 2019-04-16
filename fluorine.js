@@ -45,7 +45,7 @@ class Sprite {
       "contents": null,
       "ending": null
     }
-depended on scratch 3’s renderer   }
+  }
 
   setPos(x,y) {
     this.position.x = x;
